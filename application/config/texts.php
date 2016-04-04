@@ -7,6 +7,7 @@
  */
 return array(
 	"FEEDBACK_UNKNOWN_ERROR" => "Unknown error occurred!",
+	"EMPTY_STRING" => "all fields must be filled in",
 	"FEEDBACK_DELETED" => "Your account has been deleted.",
 	"FEEDBACK_ACCOUNT_SUSPENDED" => "Account Suspended for ",
 	"FEEDBACK_ACCOUNT_SUSPENSION_DELETION_STATUS" => "This user's suspension / deletion status has been edited.",
@@ -45,7 +46,7 @@ return array(
 	"FEEDBACK_VERIFICATION_MAIL_SENDING_SUCCESSFUL" => "A verification mail has been sent successfully.",
 	"FEEDBACK_ACCOUNT_ACTIVATION_SUCCESSFUL" => "Activation was successful! You can now log in.",
 	"FEEDBACK_ACCOUNT_ACTIVATION_FAILED" => "Sorry, no such id/verification code combination here! It might be possible that your mail provider (Yahoo? Hotmail?) automatically visits links in emails for anti-scam scanning, so this activation link might been clicked without your action. Please try to log in on the main page.",
-	"ILLAGE_ACTION_DELETING_NON_OWN_CHAMBER" => "you are not the user who made this acount so you can not delete it!"
+	"ILLAGE_ACTION_DELETING_NON_OWN_CHAMBER" => "you are not the user who made this acount so you can not delete it!",
 	"FEEDBACK_PASSWORD_RESET_TOKEN_FAIL" => "Could not write token to database.",
 	"FEEDBACK_PASSWORD_RESET_TOKEN_MISSING" => "No password reset token.",
 	"FEEDBACK_PASSWORD_RESET_MAIL_SENDING_ERROR" => "Password reset mail could not be sent due to: ",

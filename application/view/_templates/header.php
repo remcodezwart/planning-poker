@@ -3,6 +3,8 @@
 <head>
     <title>HUGE</title>
     <meta charset="utf-8">
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- send empty favicon fallback to prevent user's browser hitting the server for lots of favicon requests resulting in 404s -->
     <link rel="icon" href="data:;base64,=">
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css" />

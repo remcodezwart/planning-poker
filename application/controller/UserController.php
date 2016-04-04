@@ -113,12 +113,9 @@ class UserController extends Controller
         );
 
         if ($result) {
-            LoginModel::logout(); 
-            Session::add('feedback_positive', Text::get('FEEDBACK_ACOUNT_DELETION_SUCCES'));
-            Redirect::home();
+            Redirect::to('login/index');
         } else {
             Redirect::to('user/deleteUser');
         }
     }
-
 }

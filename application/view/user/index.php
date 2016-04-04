@@ -10,14 +10,15 @@
 		<th></th>
 		<th></th>
 	</tr>
-<?php foreach($this->chambers as $chamber){
+<?php
+ 	foreach($this->chambers as $chamber){
 ?>	
 	<tr>
-		<td><?=$chamber->Name ?></td>
+		<td><?=$chamber->name ?></td>
 		<td><?=$chamber->subject ?></td>
-		<td><?=$chamber->owner ?></td>
-		<td><a class="no-white" target="_blank" href="http://localhost/huge/chamber/index/?id=<?=$chamber->id?>">Kamer ingaan</a></td>
-		<td><a class="no-white" href="http://localhost/huge/chamber/deletechamber/?id=<?=$chamber->id?>">kamer verwijderen</a></td>
+		<td><?=$chamber->user_name ?></td>
+		<td><a class="no-white" target="_blank" href="http://localhost/huge/chamber/index/?id=<?=$chamber->chamberid?>">Kamer ingaan</a></td>
+		<td><a class="no-white" href="http://localhost/huge/chamber/deletechamber/?id=<?=$chamber->chamberid?>">kamer verwijderen</a></td>
 	</tr>
 <?php
 	}

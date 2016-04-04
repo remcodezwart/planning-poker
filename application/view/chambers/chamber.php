@@ -12,10 +12,10 @@
 		</tr>	
 		<tr>
 		<?php foreach ($this->chamber as $result) {?>
-			<td><?=$result->Name?></td>
+			<td><?=$result->user_name?></td>
 			<td><?=$result->subject?></td>
 		<?php
-			break;
+		break;
 			}
 		?>
 		</tr>
@@ -33,26 +33,25 @@
 		</tr>
 	</table>
 	<form class="float" method="post" action="#">
-		<?php for ($count=0; $count < 6; $count++) { 
-		?>
-		 <input class="chekbox" onclick="Answer(this.value)" id="1" type="radio" name="<?=$count ?>" value="1"> 1
-		 <input class="chekbox" onclick="Answer(this.value" id="2" type="radio" name="<?=$count ?>" value="2"> 2
-		 <input class="chekbox" onclick="Answer(this.value)" id="3" type="radio" name="<?=$count ?>" value="3"> 3
-		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$count ?>" value="4"> 4
-		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$count ?>" value="5"> 5
-		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$count ?>" value="joker">joker
+		<?php foreach ($this->chamber as $result) { ?>
+		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$result->featureid ?>" value="1/<?=$result->featureid ?>"> 1
+		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$result->featureid ?>" value="2/<?=$result->featureid ?>"> 2
+		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$result->featureid ?>" value="3/<?=$result->featureid ?>"> 3
+		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$result->featureid ?>" value="4/<?=$result->featureid ?>"> 4
+		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$result->featureid ?>" value="5/<?=$result->featureid ?>"> 5
+		 <input class="chekbox" onclick="Answer(this.value)" type="radio" name="<?=$result->featureid ?>" value="joker/<?=$result->featureid ?>">joker
 		<br>
 		 <?php
-			}
+				}
 		 ?>
 	</form>
 	<script>
-	function Answer(value,id){
-		formData = "answer=" + value;
-		 	$.ajax({
-			    url:"answer.php",  
-			    type: "POST",
-   				data : formData,
-			   });
-	}
-	</script>
+    function Answer(value){
+	    $.ajax({
+	    	type: "POST",
+	        url:"<?php echo Config::get('URL'); ?>chamber/answer_action",
+	        data : {value: value, csrf_token: '<?= Csrf::makeToken();?>'}
+	    });
+    }
+    </script>
+    

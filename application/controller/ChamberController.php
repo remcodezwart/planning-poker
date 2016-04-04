@@ -38,7 +38,24 @@ class ChamberController extends Controller
             Redirect::home();
             exit();
         }
-		ChamberModel::createchamber_action();
+		$result = ChamberModel::createchamber_action();
+
+		if ($result) {
+			Redirect::home();
+		} else {
+			redirect::to("chamber/createChamber");
+		}
+	}
+	public function answer_action()
+	{
+		$answer = $_GET['value'];
+		if (!Csrf::isTokenValid()) {
+			LoginModel::logout();
+            exit();
+        } 
+        chamberModel::Answer($answer);
+       
+
 	}
 }
 

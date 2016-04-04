@@ -1,3 +1,5 @@
+<?php $this->renderFeedbackMessages(); ?>
+
 <form action="<?php echo Config::get('URL'); ?>chamber/CreateChamber_action" method="post">
 	<label>Naam van de kamer</label><br>
 	<input type="text" name="ChamberName"><br>

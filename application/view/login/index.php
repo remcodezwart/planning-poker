@@ -1,4 +1,3 @@
-
     <!-- echo out the system feedback (error and success messages) -->
     <?php $this->renderFeedbackMessages(); ?>
                 <h2>Login here</h2>
