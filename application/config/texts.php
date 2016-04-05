@@ -7,6 +7,9 @@
  */
 return array(
 	"FEEDBACK_UNKNOWN_ERROR" => "Unknown error occurred!",
+	"NOT_OWNER" => "only the owner can change the name",
+	"CHAMBER_NAME_EMPTY" => "Chamber name can not be empty",
+	"SUCCES_NAME_CHANGE" => "name has been successfully changed",
 	"EMPTY_STRING" => "all fields must be filled in",
 	"FEEDBACK_DELETED" => "Your account has been deleted.",
 	"FEEDBACK_ACCOUNT_SUSPENDED" => "Account Suspended for ",

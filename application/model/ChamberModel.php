@@ -29,23 +29,26 @@ class ChamberModel{
 		 	chambers.user_id=users.user_id WHERE chambers.id=:id");
          $query->execute(array(':id' => $id));
          $chamber = $query->fetchAll();
-        
+         array_walk_recursive($chambers, 'Filter::XSSFilter');
          return $chamber;
 	}
-	public static function DeleteChamber_action($username)
+	public static function DeleteChamber_action()
 	{
 		if (!isset($_GET['id'])) {
 			Redirect::home();
 			exit();
 		}
+		$userId = Usermodel::getUserIdByUsername(Session::get('user_name'));
+
+
 		$database = DatabaseFactory::getFactory()->getConnection();
-		$query = $database->prepare("SELECT * FROM chambers WHERE owner=:username AND id=:id limit 1"); 
-		$query->execute(array(':username' => $username , 'id' => $_GET['id']));
+		$query = $database->prepare("SELECT * FROM chambers WHERE user_id=:username AND id=:id limit 1"); 
+		$query->execute(array(':username' => $userId , 'id' => $_GET['id']));
 		$chambers = $query->fetchAll();
 
 		if ($chambers != null) {
-			$query = $database->prepare("DELETE FROM chambers WHERE owner=:username AND id=:id"); 
-			$query->execute(array(':username' => $username , 'id' => $_GET['id']));
+			$query = $database->prepare("DELETE FROM chambers WHERE user_id=:username AND id=:id"); 
+			$query->execute(array(':username' => $userId , 'id' => $_GET['id']));
 
 			$query = $database->prepare("DELETE FROM features WHERE chamber_id=:id"); 
 			$query->execute(array('id' => $_GET['id']));
@@ -101,16 +104,68 @@ class ChamberModel{
 					}
 				}
 			}
-		public static function Answer($answer)
+		public static function chageRoomname()
+		{
+			if (!isset($_POST['id'])) {
+				Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+				return false;
+				exit();
+			}
+			if (!isset($_POST['subject'])) {
+				Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+				return true;
+				exit();
+			}
+			$subject = strip_tags(trim($_POST['subject']));
+			if ($_POST['subject'] == "") {
+				Session::add('feedback_negative', Text::get('CHAMBER_NAME_EMPTY'));
+				return true;
+				exit();
+			}
+			$database = DatabaseFactory::getFactory()->getConnection();
+
+			$user_name = Session::get('user_name');
+			$user_id = 	UserModel::getUserIdByUsername($user_name);
+
+			$stmt = $database->prepare("SELECT * FROM chambers WHERE user_id=:userid AND  id=:id");
+			$stmt->execute(array(':userid' => $user_id,':id' => $_POST['id']));
+			$chambers = $stmt->fetchAll();
+			if ($chambers != null) {
+				$stmt = $database->prepare("UPDATE chambers SET Name=:subject WHERE user_id=:userid AND  id=:id");
+				$stmt->execute(array(':userid' => $user_id,':id' => $_POST['id'],':subject' => $subject));
+				Session::add('feedback_positive', Text::get('SUCCES_NAME_CHANGE'));
+			} else {
+				Session::add('feedback_negative', Text::get('NOT_OWNER'));
+			}
+			return true;
+
+		}
+		public static function answer($answer)
 		{
 			$database = DatabaseFactory::getFactory()->getConnection();
+
+			$answer = strip_tags(trim($_GET['value']));
+
 			$answer = explode('/', $answer);
-			$answerValue = $answer[1];
-			$id = $answer[0];
+			$answerValue = $answer[0];
+			$id = $answer[1];
+			echo $id;
+			echo "<br>";
+			echo $answerValue;
+			if ($answerValue != 1 || $answerValue != 2 || $answerValue != 3 || $answerValue != 4 || $answerValue !=5 || $answerValue != "joker") {
+				echo json_encode(array('error' => "error"));
+				exit();
+			}
+			$user_name = Session::get('user_name');
+			$user_id = 	UserModel::getUserIdByUsername($user_name);
 
-
-
-
+			$query = $database->prepare("SELECT * FROM answer WHERE users_id=:userid AND feature_id=:featureId");
+			$query->execute(array(':userid' => $user_id,'featureId' => $id));
+			$chambers = $query->fetchAll();
+			
+			var_dump($chambers);
+			exit();
+			$database = null;
 		}
 	}
 ?>

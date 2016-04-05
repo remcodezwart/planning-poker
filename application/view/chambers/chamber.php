@@ -1,6 +1,8 @@
-<form action="#" method="post">
+<form action="<?php echo Config::get('URL'); ?>chamber/changeRoomName_action" method="post">
 	<label>naam wijzigen van kamer</label>
 	<input type="text" name="subject">
+	<input type="hidden" name="id" value="<?=$_GET['id']?>">
+	<input type="hidden" name="csrf_token" value="<?= Csrf::makeToken(); ?>" />
 	<input type="submit" value="update">
 </form>
 
@@ -51,6 +53,7 @@
 	    	type: "POST",
 	        url:"<?php echo Config::get('URL'); ?>chamber/answer_action",
 	        data : {value: value, csrf_token: '<?= Csrf::makeToken();?>'}
+	       
 	    });
     }
     </script>

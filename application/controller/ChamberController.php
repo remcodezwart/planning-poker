@@ -27,9 +27,7 @@ class ChamberController extends Controller
             Redirect::home();
             exit();
         }
-        $result = ChamberModel::DeleteChamber_action(
-              Session::get('user_name')
-        );
+        $result = ChamberModel::DeleteChamber_action();
 	}
 	public function CreateChamber_action()
 	{
@@ -46,27 +44,31 @@ class ChamberController extends Controller
 			redirect::to("chamber/createChamber");
 		}
 	}
+	public function changeRoomName_action()
+	{
+
+		if (!Csrf::isTokenValid()) {
+            LoginModel::logout();
+            Redirect::home();
+            exit();
+        }
+        $result = chamberModel::chageRoomname();
+        if ($result) {
+        	 Redirect::home();//if the user has tampered with the name for the field of id or if for some reason we do not get it were gonna redirect to home since we can not get them back cause we do not have the id
+        } else {
+        	Redirect::to('chamber/index/?id='.$_POST['id']);
+        }
+	}
 	public function answer_action()
 	{
 		$answer = $_GET['value'];
-		if (!Csrf::isTokenValid()) {
-			LoginModel::logout();
-            exit();
-        } 
-        chamberModel::Answer($answer);
+		//if (!Csrf::isTokenValid()) {
+		//	LoginModel::logout();
+         //     exit();
+        //} 
+        $result = chamberModel::answer($answer);
+       
        
 
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
