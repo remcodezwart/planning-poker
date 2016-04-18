@@ -14,11 +14,14 @@ class ChamberController extends Controller
 	public function createChamber()
 	{
 		$this->View->render('chambers/chamberCreate');
+
 	}
 
 	public function deletechamber()
 	{
 		$this->View->render('chambers/delete_chambers_confirm');
+
+
 	}
 	public function DeleteChamber_action()
 	{
@@ -37,7 +40,6 @@ class ChamberController extends Controller
             exit();
         }
 		$result = ChamberModel::createchamber_action();
-
 		if ($result) {
 			Redirect::home();
 		} else {
@@ -61,14 +63,25 @@ class ChamberController extends Controller
 	}
 	public function answer_action()
 	{
-		$answer = $_GET['value'];
+		if (!Csrf::isTokenValid()) {
+			LoginModel::logout();
+              exit();
+        } 
+        $result = chamberModel::answer();
+        if (!result) {
+        	echo json_encode(array('error' => "error"));
+        }
+	}
+	public function chekIfuseranswerAreFilled_action()
+	{
 		//if (!Csrf::isTokenValid()) {
 		//	LoginModel::logout();
-         //     exit();
+		//	Redirect::home();
+        //    exit();
         //} 
-        $result = chamberModel::answer($answer);
-       
-       
-
+        $resultAnswer = chamberModel::chekAnswers();
+        if ($resultAnswer != null) {//prevents the result showing up on a null result
+        	 echo json_encode($resultAnswer);
+        }
 	}
 }
