@@ -9,6 +9,7 @@
 		<th>Eigenaar</th>
 		<th></th>
 		<th></th>
+		<th></th>
 		<th>eens?</th>
 	</tr>
 <?php
@@ -20,6 +21,7 @@
 		<td><?=$chamber->user_name ?></td>
 		<td><a class="no-white" target="_blank" href="http://localhost/huge/chamber/index/?id=<?=$chamber->chamberid?>">Kamer ingaan</a></td>
 		<td><a class="no-white" href="http://localhost/huge/chamber/deletechamber/?id=<?=$chamber->chamberid?>">kamer verwijderen</a></td>
+		<td><a class="no-white" href="http://localhost/huge/chamber/editChamber/?id=<?=$chamber->chamberid?>">kamer editen</a></td>
 		<td><?=$chamber->eens?></td>
 	</tr>
 <?php

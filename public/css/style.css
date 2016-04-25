@@ -67,7 +67,7 @@ td,tr,table{
 	.float{
 		display:inline;
 		position: relative;
-		top:-205px;
+		top: -25%;
 		left:250px;
 	}
 }

@@ -25,11 +25,11 @@ class ChamberController extends Controller
 	}
 	public function DeleteChamber_action()
 	{
-		if (!Csrf::isTokenValid()) {
-            LoginModel::logout();
-            Redirect::home();
-            exit();
-        }
+		//if (!Csrf::isTokenValid()) {
+        //    LoginModel::logout();
+        //    Redirect::home();
+        //    exit();
+        //}
         $result = ChamberModel::DeleteChamber_action();
 	}
 	public function CreateChamber_action()
@@ -68,20 +68,27 @@ class ChamberController extends Controller
               exit();
         } 
         $result = chamberModel::answer();
-        if (!result) {
+        if (!$result) {
         	echo json_encode(array('error' => "error"));
         }
 	}
 	public function chekIfuseranswerAreFilled_action()
 	{
-		//if (!Csrf::isTokenValid()) {
-		//	LoginModel::logout();
-		//	Redirect::home();
-        //    exit();
-        //} 
+	   if (!Csrf::isTokenValid()) {
+			LoginModel::logout();
+			Redirect::home();
+            exit();
+       } 
         $resultAnswer = chamberModel::chekAnswers();
-        if ($resultAnswer != null) {//prevents the result showing up on a null result
-        	 echo json_encode($resultAnswer);
+
+        if ($resultAnswer != false && $resultAnswer !== null) {//prevents the result showing up on a null result
+        	echo json_encode($resultAnswer);
         }
+	}
+	public function editChamber()
+	{
+		$this->View->render('chambers/editChamber', array(
+        	'answer' => ChamberModel::getFeatureInfromation()
+		));
 	}
 }

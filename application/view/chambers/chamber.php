@@ -81,7 +81,7 @@
                     content = $('#answer');
                     content.append('</table>');
                     clearInterval(Timer);
-                  }
+                  },
         });
     }
     </script>	

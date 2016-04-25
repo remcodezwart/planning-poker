@@ -1,6 +1,19 @@
 <?php
 class ChamberModel
 {
+	public static function getFeatureInfromation() {
+		$id = $_GET['id'];
+		$database = DatabaseFactory::getFactory()->getConnection();
+
+
+		$query = $database->prepare("SELECT * FROM features where chamber_id=:chamberId"); 
+		$query->execute(array(':chamberId' => $id));
+		$answer = $query->fetchAll();
+
+		$datbase = null;
+	
+		return $answer;
+	}
 	public static function GetRequestedChamber() {
 		if (!isset($_GET['id'])) {
 			Redirect::home();
@@ -34,7 +47,7 @@ class ChamberModel
 
 
 		$database = DatabaseFactory::getFactory()->getConnection();
-		$chambers = self::ChekOwner($database,$id);
+		$chambers = self::ChekOwner($database,$userId,$id);
 
 		if ($chambers != null) {
 			$query = $database->prepare("DELETE FROM chambers WHERE user_id=:username AND id=:id"); 
@@ -45,6 +58,9 @@ class ChamberModel
 
 			$query = $database->prepare("DELETE FROM chamberusers WHERE chambers_id=:id"); 
 			$query->execute(array('id' => $_GET['id']));
+
+			//$query = $database->prepare("DELETE FROM answer WHERE chambers_id=:id"); 
+			//$query->execute(array('id' => $_GET['id']));
 
 			redirect::home();
 		} else {
@@ -76,89 +92,101 @@ class ChamberModel
 			}
 			$chek--;
 		}
-			$chek = $count;
-			$database = DatabaseFactory::getFactory()->getConnection();
+		$chek = $count;
+		$database = DatabaseFactory::getFactory()->getConnection();
 
-			$user_name = Session::get('user_name');
-			$user_id = 	UserModel::getUserIdByUsername($user_name);
+		$user_name = Session::get('user_name');
+		$user_id = 	UserModel::getUserIdByUsername($user_name);
 
 
-			$name = strip_tags(trim($_POST['ChamberName']));
-			$subject = strip_tags(trim($_POST['Onderwerp']));
+		$name = strip_tags(trim($_POST['ChamberName']));
+		$subject = strip_tags(trim($_POST['Onderwerp']));
 
-			if ($name == null || $subject == null) {
+		if ($name == null || $subject == null) {
+			Session::add('feedback_negative', Text::get('EMPTY_STRING'));
+			return false;
+			exit();
+		}
+		$features = array();
+		while($chek > -1) {
+			$cleaning = strip_tags(trim($_POST[$chek]));
+			if ($cleaning == null) {
 				Session::add('feedback_negative', Text::get('EMPTY_STRING'));
 				return false;
 				exit();
 			}
-			$features = array();
-			while($chek > -1) {
-				$cleaning = strip_tags(trim($_POST[$chek]));
-				if ($cleaning == null) {
-					Session::add('feedback_negative', Text::get('EMPTY_STRING'));
-					return false;
-					exit();
-				}
-				array_push($features, $cleaning);
+			array_push($features, $cleaning);
+			$chek--;
+		}
+			$stmt = $database->prepare("INSERT INTO chambers (Name,subject,user_id,amout_of_features) VALUES(:name,:subject,:owner,:count)");
+			$stmt->execute(array(':name' => $name , ':subject' => $subject, ':owner' => $user_id,':count' => $count+1));
+					
+			$query = $database->prepare("INSERT INTO features (feature,chamber_id) VALUES(:feature,:chamberid)");
+			$last_id = $database->lastInsertId();
+			$chek = $count;
+		while($chek > -1) {
+				$query->execute(array(':feature' => $features[$chek] , 'chamberid' => $last_id));
 				$chek--;
 			}
-						$stmt = $database->prepare("INSERT INTO chambers (Name,subject,user_id,amout_of_features) VALUES(:name,:subject,:owner,:count)");
-						$stmt->execute(array(':name' => $name , ':subject' => $subject, ':owner' => $user_id,':count' => $count+1));
-					
-						$query = $database->prepare("INSERT INTO features (feature,chamber_id) VALUES(:feature,:chamberid)");
-						$last_id = $database->lastInsertId();
-			$chek = $count;
-					while($chek > -1) {
-							$query->execute(array(':feature' => $features[$chek] , 'chamberid' => $last_id));
-							$chek--;
-						}
-					return true;	
+		$database = null;
+		return true;	
+	}
+	public static function chageRoomname() {
+		if (!isset($_POST['id'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false;
+			exit();
 			}
-		public static function chageRoomname() {
-			if (!isset($_POST['id'])) {
-				Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
-				return false;
-				exit();
-			}
-			if (!isset($_POST['subject'])) {
-				Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
-				return true;
-				exit();
+		if (!isset($_POST['subject'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return true;
+			exit();
 			}
 			$subject = strip_tags(trim($_POST['subject']));
-			if ($_POST['subject'] == "") {
-				Session::add('feedback_negative', Text::get('CHAMBER_NAME_EMPTY'));
-				return true;
-				exit();
-			}
+		if ($_POST['subject'] == "") {
+			Session::add('feedback_negative', Text::get('CHAMBER_NAME_EMPTY'));
+			return true;
+			exit();
+		}
 			$database = DatabaseFactory::getFactory()->getConnection();
 
 			$user_name = Session::get('user_name');
 			$user_id = 	UserModel::getUserIdByUsername($user_name);
 			$id = $_POST['id'];
 
-			$chambers = self::ChekOwner($database,$id);
-			if ($chambers != null) {
-				$stmt = $database->prepare("UPDATE chambers SET Name=:subject WHERE user_id=:userid AND  id=:id");
-				$stmt->execute(array(':userid' => $user_id,':id' => $_POST['id'],':subject' => $subject));
-				Session::add('feedback_positive', Text::get('SUCCES_NAME_CHANGE'));
-			} else {
-				Session::add('feedback_negative', Text::get('NOT_OWNER'));
-			}
+			$chambers = self::ChekOwner($database,$user_id,$id);
+		if ($chambers != null) {
+			$stmt = $database->prepare("UPDATE chambers SET Name=:subject WHERE user_id=:userid AND  id=:id");
+			$stmt->execute(array(':userid' => $user_id,':id' => $_POST['id'],':subject' => $subject));
+			Session::add('feedback_positive', Text::get('SUCCES_NAME_CHANGE'));
+		} else {
+			Session::add('feedback_negative', Text::get('NOT_OWNER'));
+		}
 			return true;
-
 		}
 		public static function answer() {
 			$database = DatabaseFactory::getFactory()->getConnection();
 
 			$answer = strip_tags(trim($_POST['value']));
-
+			if ($answer === null) {
+				return false;
+				exit();
+			}
 			$answer = explode('/', $answer);
 			$answerValue = $answer[0];
 			$id = $answer[1];
 			$chamberId = $_POST['id'];
 
 			Self::chekIfChamberExsist($database,$chamberId);
+
+			$query = $database->prepare("SELECT * FROM features WHERE id=:id LIMIT 1");
+			$query->execute(array(':id' => $id));
+			$chek = $query->fetchAll();
+			if ($chek === null) {
+				return false;
+				exit();
+			}
+
 
 			if ($answerValue == 1 || $answerValue == 2 || $answerValue == 3 || $answerValue == 4 || $answerValue == 5                                     || $answerValue == "joker") {
 
@@ -179,10 +207,10 @@ class ChamberModel
 				$userId = Usermodel::getUserIdByUsername(Session::get('user_name'));
 				Self::updateChamberUsers($chamberId,$userId,$database);
 				$database = null;
-			} else {
-				return false;
-				exit();
-			}
+				} else {
+					return false;
+					exit();
+				}
 		}
 		protected static function updateChamberUsers($id,$userId,$database) {
 			Self::chekIfChamberExsist($database,$id);
@@ -204,7 +232,7 @@ class ChamberModel
 		public static function chekAnswers() {
 			$results = 0;
 			$database = DatabaseFactory::getFactory()->getConnection();
-			$id = $_GET['id'];
+			$id = $_POST['id'];
 
 			Self::chekIfChamberExsist($database,$id);
 
@@ -215,20 +243,20 @@ class ChamberModel
 			$amoutOfusers = $query->fetchAll();
 			$result = count($amoutOfusers);
 
-			$query = $database->prepare("SELECT answer.id,answer.users_id,answer.feature_id,answer.answer,features.id,features.chamber_id FROM answer INNER JOIN features ON  answer.feature_id=features.id WHERE chamber_id=:chamberId AND  answer.users_id=:id"); 
-			foreach ($amoutOfusers as $amout){
-			$query->execute(array(':id' => $amout->users_id,':chamberId' => $id));
-			$answer = $query->fetchAll();
+			$answer = self::getFeatures($database,$id,$amoutOfusers);
 			$results += count($answer);
-			}
+			
 
 			$query = $database->prepare("SELECT chambers.amout_of_features,chambers.id FROM chambers WHERE chambers.id=:chamberId LIMIT 1"); 
 			$query->execute(array(':chamberId' => $id));
 			$amoutOfFeatures = $query->fetchAll();
-			//make this a number
-			
 
-			$result = $result * $amoutOfFeatures;
+			foreach ($amoutOfFeatures as $temp) {
+				$features = $temp->amout_of_features;
+			}
+			$features = (int)$features;
+
+			$result = $result * $features;
 
 			if ($result == $results) {
 				$query = $database->prepare("UPDATE chambers SET eens=:eens"); 
@@ -251,10 +279,20 @@ class ChamberModel
 				exit();
 			}
 		}
-		protected static function ChekOwner($database,$id) {
-		$query = $database->prepare("SELECT * FROM chambers WHERE user_id=:username AND id=:id limit 1"); 
-		$query->execute(array(':username' => $userId , 'id' => $id));
-		$chambers = $query->fetchAll();
-		return $chambers;
+		protected static function ChekOwner($database,$userId,$id) {
+			$query = $database->prepare("SELECT * FROM chambers WHERE user_id=:username AND id=:id limit 1"); 
+			$query->execute(array(':username' => $userId , 'id' => $id));
+			$chambers = $query->fetchAll();
+			return $chambers;
 		}
-	}
+		protected static function getFeatures($database,$id,$amoutOfusers){
+
+			$query = $database->prepare("SELECT answer.id,answer.users_id,answer.feature_id,answer.answer,features.id,features.chamber_id FROM answer INNER JOIN features ON  answer.feature_id=features.id WHERE chamber_id=:chamberId AND  answer.users_id=:id"); 
+			foreach ($amoutOfusers as $amout){
+			$query->execute(array(':id' => $amout->users_id,':chamberId' => $id));
+			}
+			$answer = $query->fetchAll();
+			return $answer;
+		}
+}
+

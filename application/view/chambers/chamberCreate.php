@@ -16,15 +16,30 @@
 </form>
 
 <script type="text/javascript">
-	var AmoutOfFeatures = prompt("hoveel features?");
-
-	content = $('#features');
+	var done = false;
+	var content = $('#features');
     var myNode = document.getElementById("features");
     var count = 0;
-	while(AmoutOfFeatures >= 1)
-	{
-        content.append('<input type="text" name="' + count + '"><br>');
-        count++;
-        AmoutOfFeatures--;
+
+	amoutOfFeatures();
+	function amoutOfFeatures(){
+		var AmoutOfFeatures = prompt("hoveel features?(limiet 99999)");
+		done = featuresGenerate(AmoutOfFeatures);
+		while(done == false){
+			AmoutOfFeatures = prompt("hoveel features?(limiet 99999)(voer een geldige waarden in!)");
+			done = featuresGenerate(AmoutOfFeatures);
+		}
+	}
+
+    function featuresGenerate(AmoutOfFeatures){
+		while(AmoutOfFeatures >= 1) {
+				if(AmoutOfFeatures >= 100000) {
+					return false;
+				}
+		        content.append ('<input type="text" name="' + count + '"><br>');
+		        count++;
+		        AmoutOfFeatures--;
+			}
+			return true;
 	}
 </script> 
