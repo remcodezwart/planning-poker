@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css" />
 </head>
 <body>
+    <noscript>
+        javascript is requiered for this website to work please anable it.
+    </noscript>
      <?php if (!Session::userIsLoggedIn()) { ?>
     <nav>
         <ul>

@@ -66,8 +66,8 @@ td,tr,table{
 @media screen and (min-width: 743px){
 	.float{
 		display:inline;
-		position: relative;
-		top: -25%;
+		position: absolute;
+		top: 200px;
 		left:250px;
 	}
 }

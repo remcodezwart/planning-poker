@@ -23,17 +23,17 @@
 
 	amoutOfFeatures();
 	function amoutOfFeatures(){
-		var AmoutOfFeatures = prompt("hoveel features?(limiet 99999)");
+		var AmoutOfFeatures = prompt("hoveel features?(limiet 1000)");
 		done = featuresGenerate(AmoutOfFeatures);
 		while(done == false){
-			AmoutOfFeatures = prompt("hoveel features?(limiet 99999)(voer een geldige waarden in!)");
+			AmoutOfFeatures = prompt("hoveel features?(limiet 1000)(voer een geldige waarden in!)");
 			done = featuresGenerate(AmoutOfFeatures);
 		}
 	}
 
     function featuresGenerate(AmoutOfFeatures){
 		while(AmoutOfFeatures >= 1) {
-				if(AmoutOfFeatures >= 100000) {
+				if(AmoutOfFeatures > 1000) {
 					return false;
 				}
 		        content.append ('<input type="text" name="' + count + '"><br>');

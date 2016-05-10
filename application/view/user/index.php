@@ -7,9 +7,9 @@
 		<th>Naam</th>
 		<th>Onderwerp</th>
 		<th>Eigenaar</th>
-		<th></th>
-		<th></th>
-		<th></th>
+		<th style="display:hidden;border:0px;"></th>
+		<th style="display:hidden;border:0px;"></th>
+	    <th style="display:hidden;border:0px;"></th>
 		<th>eens?</th>
 	</tr>
 <?php

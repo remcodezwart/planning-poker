@@ -343,7 +343,7 @@ class UserModel
     {
          $database = DatabaseFactory::getFactory()->getConnection();
 
-         $query = $database->prepare("SELECT users.user_id ,users.user_name, chambers.name,chambers.subject,chambers.user_id,chambers.id AS chamberid ,chambers.eens FROM users INNER JOIN chambers ON chambers.user_id=users.user_id ");
+         $query = $database->prepare("SELECT chambers.active,users.user_id ,users.user_name, chambers.name,chambers.subject,chambers.user_id,chambers.id AS chamberid ,chambers.eens FROM users INNER JOIN chambers ON chambers.user_id=users.user_id AND chambers.active=1");
          $query->execute();
          $chambers = $query->fetchAll();
          array_walk_recursive($chambers, 'Filter::XSSFilter');

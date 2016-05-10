@@ -29,7 +29,7 @@
 			</tr>
 			<tr>
 			<?php foreach ($this->chamber as $result) {?>
-				<td class="block"><?=$result->feature?></td>
+				<td style="display:block"><?=$result->feature?></td>
 			<?php
 				}
 			?>
@@ -49,6 +49,8 @@
 			 ?>
 		</form>
 </div>
+ 
+    
 <script>
 	chekAnswers();
     var Timer = setInterval(chekAnswers, 6000);
@@ -60,20 +62,20 @@
             dataType: "json", 
         });
     }
-
     function chekAnswers() {
             $.ajax({
             type: "POST",
             url:"<?php echo Config::get('URL'); ?>chamber/chekIfuseranswerAreFilled_action",
             data:{id: <?=$_GET['id'] ?>,csrf_token: '<?= Csrf::makeToken();?>'},
             success: function(data) {
+            		
                     rows = $.parseJSON(data);
                     content = $('#answer');
                     var myNode = document.getElementById("answer");
                     while (myNode.firstChild) {
                         myNode.removeChild(myNode.firstChild);
                     }
-                    content.append('<table id="table"><tr><th>gebruiker</th><th>feature</th><th>antwoord</th><tr>');
+                    content.append('<table id="table"><tr><th>gebruiker</th><th>feature</th><th>antwoord</th>');
                     for(var r in rows){
                         content = $('#table');
                         content.append('<tr><td>'+rows[r].user_name+'</td><td>'+rows[r].feature+'</td><td>'+rows[r].answer+'</td></tr>');
@@ -84,4 +86,4 @@
                   },
         });
     }
-    </script>	
+    </script>
