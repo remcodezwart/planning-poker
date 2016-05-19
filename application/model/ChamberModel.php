@@ -10,8 +10,11 @@ class ChamberModel
 		} 
 		$database = DatabaseFactory::getFactory()->getConnection();
 
-		self::chekIfChamberExsist($database,$id);
-
+		$chek = self::chekIfChamberExsist($database,$id);
+		if ($chek === false) {
+			Redirect::to('user/index');
+			exit();
+		}
 		$query = $database->prepare("SELECT * FROM features where chamber_id=:chamberId AND active=:active"); 
 		$query->execute(array(':chamberId' => $id,':active' => "1"));
 		$answer = $query->fetchAll();
@@ -53,6 +56,12 @@ class ChamberModel
 		$database = DatabaseFactory::getFactory()->getConnection();
 		$chambers = self::ChekOwner($database,$userId,$id);
 
+		$chek = self::chekIfChamberExsist($database,$id);
+		if ($chek === false) {
+			Redirect::to('user/index');
+			exit();
+		}
+
 		if ($chambers != null) {
 
 			$query = $database->prepare("UPDATE answer SET active=:active WHERE chamber_id=:id"); 
@@ -84,7 +93,7 @@ class ChamberModel
 			exit();
 		}
 		
-		if ($_POST['ChamberName'] === null || $_POST['Onderwerp'] === null) {
+		if ($_POST['ChamberName'] == null || $_POST['Onderwerp'] == null) {
 			Session::add('feedback_negative', Text::get('EMPTY_STRING'));
 			return false;
 			exit();
@@ -252,8 +261,8 @@ class ChamberModel
 		
 		$results += count($answer);	
 		
-		$query = $database->prepare("SELECT chambers.amout_of_features,chambers.id FROM chambers WHERE chambers.id=:chamberId LIMIT 1"); 
-		$query->execute(array(':chamberId' => $id));
+		$query = $database->prepare("SELECT chambers.amout_of_features,chambers.id FROM chambers WHERE chambers.id=:chamberId AND active=:active LIMIT 1"); 
+		$query->execute(array(':chamberId' => $id, ':active' => "1"));
 		$amoutOfFeatures = $query->fetchAll();
 
 		foreach ($amoutOfFeatures as $temp) {
@@ -265,6 +274,7 @@ class ChamberModel
 		$result = $result * $features;
 
 		if ($result === $results) {
+			
 			$query = $database->prepare("UPDATE chambers SET eens=:eens"); 
 			$query->execute(array(':eens' => "ja"));
 
@@ -272,6 +282,7 @@ class ChamberModel
 			$query->execute(array(':id' => $id,':active' => "1"));
 			$chamberResult = $query->fetchAll();
 			array_walk_recursive($chamberResult, 'Filter::XSSFilter');
+			
 			return $chamberResult;
 
 			$database = null;
@@ -293,12 +304,13 @@ class ChamberModel
 		return $chamber;//makes it so if the user is not the only he or she can not edit/delete features and chambers
 	}
 	protected static function getFeatures($database,$id,$amoutOfusers){
-		$query = $database->prepare("SELECT answer.id,answer.users_id,answer.feature_id,answer.answer,features.id,features.chamber_id FROM answer INNER JOIN features ON  answer.feature_id=features.id WHERE features.chamber_id=:chamberId AND answer.users_id=:id"); 
+		$query = $database->prepare("SELECT answer.id,answer.users_id,answer.feature_id,answer.answer,features.id,features.chamber_id FROM answer INNER JOIN features ON  answer.feature_id=features.id WHERE features.chamber_id=:chamberId AND answer.users_id=:id AND features.active=:active "); 
 
 		foreach ($amoutOfusers as $amout){
-		$query->execute(array(':id' => $amout->users_id,':chamberId' => $id));
+		$query->execute(array(':id' => $amout->users_id,':chamberId' => $id , ':active' => "1"));
 		}
 		$answer = $query->fetchAll();
+		array_walk_recursive($answer, 'Filter::XSSFilter');
 		return $answer;
 	}
 	public static function deleteOneFeature()
@@ -322,6 +334,16 @@ class ChamberModel
 		$query->execute(array(':active' => "1" , ':id' => $id));
 		$answer = $query->fetchAll();
 
+		$query = $database->prepare("UPDATE answer SET active=:active WHERE feature_id=:FeatureId"); 
+		$query->execute(array(':active' => "0" , ':FeatureId' => $FeatureId));
+
+
+		$caluclation = self::featureCalulation($database,$chamberId);
+		$caluclation--;
+       
+		$query = $database->prepare("UPDATE chambers SET amout_of_features=:amout WHERE id=:id AND active=:active "); 
+		$query->execute(array(':active' => "1" , ':id' => $chamberId, ':amout' => $caluclation));
+
 		if ($answer == null) {
 			$query = $database->prepare("UPDATE chambers SET active=:remove WHERE id=:id  limit 1"); 
 			$query->execute(array(':remove' => "0" , ':id' => $chamberId));
@@ -329,7 +351,7 @@ class ChamberModel
 		$database = null;
 		return true;	
 	}
-	public function editOneFeature()
+	public static function editOneFeature()
 	{
 		$id = $_POST['id'];
 
@@ -346,8 +368,9 @@ class ChamberModel
 		$userId = Usermodel::getUserIdByUsername(Session::get('user_name'));
 		self::ChekOwner($database,$userId,$id);
 
-		$query = $database->prepare("UPDATE features SET feature=:feature WHERE chamber_id=:chamberId AND active=:active "); 
-		$query->execute(array(':active' => "1" , ':chamberId' => $chamberId , ':feature' => $feature ));
+		$query = $database->prepare("UPDATE features SET feature=:feature WHERE chamber_id=:chamberId AND active=:active  AND id=:featureId" ); 
+		$query->execute(array(':active' => "1" , ':chamberId' => $chamberId , ':feature' => $feature, ':featureId' =>    $FeatureId ));
+		$database = null;
 		return $feature;
 
 		
@@ -360,6 +383,50 @@ class ChamberModel
 			array_walk_recursive($id, 'Filter::XSSFilter');
 			return $id;
 		}
+	}
+	public static function AddOneFeature()
+	{
+		if (!isset($_POST['id'])) {
+			LoginModel::logout();
+			Redirect::home();
+            exit();
+        } 
+		
+		$chamberId = $_POST['id'];
+		$feature = $_POST['add'];
+
+		$feature = filter_var($feature, FILTER_SANITIZE_STRING);
+		if ($feature === null || $feature == "") {
+			return false;
+			exit();
+		}
+		$database = DatabaseFactory::getFactory()->getConnection();
+		$userId = Usermodel::getUserIdByUsername(Session::get('user_name'));
+		self::ChekOwner($database,$userId,$chamberId);
+		$caluclation = self::featureCalulation($database,$chamberId);
+		$caluclation++;
+
+		$query = $database->prepare("UPDATE chambers SET amout_of_features=:amout WHERE id=:id AND active=:active "); 
+		$query->execute(array(':active' => "1" , ':id' => $chamberId, ':amout' => $caluclation));
+
+		$query = $database->prepare("INSERT INTO features (feature,chamber_id) VALUES (:feature,:chamberId)"); 
+		$query->execute(array(':chamberId' => $chamberId, ':feature' => $feature));
+
+		$last_id = $database->lastInsertId();
+
+
+		return $returnValue = array("feature"=>$feature,"chamber"=>$chamberId,"id"=>$last_id);
+
+	}
+	protected static function featureCalulation($database,$chamberId)
+	{
+		$query = $database->prepare("SELECT chambers.amout_of_features FROM chambers WHERE id=:id AND active=:active LIMIT 1"); 
+		$query->execute(array(':active' => "1" , ':id' => $chamberId));
+		$amout = $query->fetchAll();
+		foreach ($amout as $amout) {
+			$caluclation = $amout->amout_of_features;
+		}
+		return $caluclation = (int)$caluclation;
 	}
 }
 

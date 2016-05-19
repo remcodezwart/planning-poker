@@ -65,19 +65,22 @@ class ChamberController extends Controller
 	{
 		if (!Csrf::isTokenValid()) {
 			LoginModel::logout();
+			Redirect::home();
             exit();
         } 
         $result = chamberModel::answer();
         if (!$result) {
         	echo json_encode(array('error' => "error"));
+        } else {
+        	echo json_encode(array('succes' => "do nothing"));
         }
 	}
 	public function chekIfuseranswerAreFilled_action()
 	{
-	   if (!Csrf::isTokenValid()) {
+	  if (!Csrf::isTokenValid()) {
 			LoginModel::logout();
 			Redirect::home();
-           exit();
+    	     exit();
       } 
         $resultAnswer = chamberModel::chekAnswers();
 
@@ -119,5 +122,18 @@ class ChamberController extends Controller
         } else {
         	echo json_encode($result);
         }
+	}
+	public function addFeature_action()
+	{
+		if (!Csrf::isTokenValid()) {
+			LoginModel::logout();
+			Redirect::home();
+            exit();
+        } 
+        $result = chamberModel::AddOneFeature();
+  	
+  		if ($result !== null) {
+  			echo json_encode($result);
+  		}
 	}
 }

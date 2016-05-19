@@ -70,19 +70,21 @@
             success: function(data) {
             		
                     rows = $.parseJSON(data);
-                    content = $('#answer');
-                    var myNode = document.getElementById("answer");
-                    while (myNode.firstChild) {
-                        myNode.removeChild(myNode.firstChild);
-                    }
-                    content.append('<table id="table"><tr><th>gebruiker</th><th>feature</th><th>antwoord</th>');
-                    for(var r in rows){
-                        content = $('#table');
-                        content.append('<tr><td>'+rows[r].user_name+'</td><td>'+rows[r].feature+'</td><td>'+rows[r].answer+'</td></tr>');
-                    }
-                    content = $('#answer');
-                    content.append('</table>');
-                    clearInterval(Timer);
+                    if (rows.succes != "do nothing") {
+	                    content = $('#answer');
+	                    var myNode = document.getElementById("answer");
+	                    while (myNode.firstChild) {
+	                        myNode.removeChild(myNode.firstChild);
+	                    }
+	                    content.append('<table id="table"><tr><th>gebruiker</th><th>feature</th><th>antwoord</th>');
+	                    for(var r in rows){
+	                        content = $('#table');
+	                        content.append('<tr><td>'+rows[r].user_name+'</td><td>'+rows[r].feature+'</td><td>'+rows[r].answer+'</td></tr>');
+	                    }
+	                    content = $('#answer');
+	                    content.append('</table>');
+	                    clearInterval(Timer);
+                	}
                   },
         });
     }
