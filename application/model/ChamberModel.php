@@ -2,7 +2,7 @@
 class ChamberModel
 {
 	public static function getFeatureInfromation() {
-		if(isset($_GET['id'])){
+		if (isset($_GET['id'])) {
 			$id = $_GET['id'];
 		} else {
 			Redirect::to('user/index');
@@ -179,6 +179,11 @@ class ChamberModel
 			return true;
 		}
 	public static function answer() {
+		if (!isset($_POST['value'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false
+			exit()
+		}
 		$database = DatabaseFactory::getFactory()->getConnection();
 
 		$answer = filter_var($_POST['value'], FILTER_SANITIZE_STRING);
@@ -244,6 +249,11 @@ class ChamberModel
 		}
 	}
 	public static function chekAnswers() {
+		if (!isset($_POST['id'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false;
+			exit();
+		}
 		$results = 0;
 		$database = DatabaseFactory::getFactory()->getConnection();
 		$id = $_POST['id'];
@@ -315,6 +325,16 @@ class ChamberModel
 	}
 	public static function deleteOneFeature()
 	{
+		if (!isset($_POST['id'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false;
+			exit();
+		}
+		if (!isset($_POST['value'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false;
+			exit();
+		}
 		$id = $_POST['id'];
 
 		$answer = explode('/', $_POST['value']);
@@ -353,6 +373,16 @@ class ChamberModel
 	}
 	public static function editOneFeature()
 	{
+		if (!isset($_POST['id'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false;
+			exit();
+		}
+		if (!isset($_POST['value'])) {
+			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
+			return false;
+			exit();
+		}
 		$id = $_POST['id'];
 
 		$answer = explode('/', $_POST['value']);
@@ -429,4 +459,3 @@ class ChamberModel
 		return $caluclation = (int)$caluclation;
 	}
 }
-
