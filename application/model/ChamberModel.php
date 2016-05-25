@@ -181,8 +181,8 @@ class ChamberModel
 	public static function answer() {
 		if (!isset($_POST['value'])) {
 			Session::add('feedback_negative', Text::get('FEEDBACK_UNKNOWN_ERROR'));
-			return false
-			exit()
+			return false;
+			exit();
 		}
 		$database = DatabaseFactory::getFactory()->getConnection();
 
